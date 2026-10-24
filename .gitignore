@@ -1,0 +1,10 @@
+node_modules/
+vendor/
+.env
+.env.local
+.next/
+dist/
+*.log
+cartix-backend/storage/app/public/*
+cartix-backend/public/storage
+*/e2e/artifacts/

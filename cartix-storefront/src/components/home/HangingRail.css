@@ -1,0 +1,317 @@
+/* Cartix hanging rail: garments hang side-on and turn to face the shopper on hover, focus or when centred on touch screens. */
+.hr {
+  --hr-primary: #0f172a;
+  --hr-accent: #2563eb;
+  --hr-bg: #ffffff;
+  --hr-soft: #f3f4f6;
+  --hr-line: #e2e8f0;
+  --hr-text: #0f172a;
+  --hr-muted: #475569;
+  --hr-slot: 92px; /* space per garment on the rod */ 
+  --hr-art-w: 184px; /* full garment width when turned to the front */ 
+  position: relative;
+  background: var(--hr-bg);
+  color: var(--hr-text);
+  font-family: inherit;
+  padding: 40px 0 24px;
+  overflow: hidden;
+}
+
+.hr button {
+  font: inherit;
+}
+
+
+.hr-head {
+  max-width: 760px;
+  margin: 0 auto 20px;
+  padding: 0 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.hr-eyebrow {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--hr-accent);
+}
+.hr-title {
+  margin: 0;
+  font-size: clamp(28px, 4.4vw, 48px);
+  line-height: 1.15;
+  font-weight: 700;
+  color: var(--hr-text);
+}
+.hr-sub {
+  margin: 0;
+  font-size: 17px;
+  color: var(--hr-muted);
+}
+.hr-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+.hr-tabs button {
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 1px solid #c9ced6;
+  background: #fff;
+  color: var(--hr-text);
+  font-size: 15px;
+  cursor: pointer;
+}
+.hr-tabs button[aria-pressed='true'] {
+  background: var(--hr-primary);
+  border-color: var(--hr-primary);
+  color: #fff;
+  font-weight: 700;
+}
+.hr-tabs button:focus-visible,
+.hr-arrows button:focus-visible,
+.hr-qv button:focus-visible,
+.hr-qv a:focus-visible {
+  outline: 3px solid var(--hr-accent);
+  outline-offset: 2px;
+}
+
+
+.hr-stage {
+  position: relative;
+  height: calc(var(--hr-art-w) * 2 * 0.96);
+}
+.hr-rod {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 8px;
+  height: 7px;
+  border-radius: 4px;
+  background: linear-gradient(#d9dce1, #8d939c 55%, #b6bbc3);
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.12);
+  z-index: 0;
+}
+.hr-viewport {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+}
+.hr-viewport:active {
+  cursor: grabbing;
+}
+.hr-track {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+}
+
+
+.hr-item {
+  position: relative;
+  flex: 0 0 var(--hr-slot);
+  width: var(--hr-slot);
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  z-index: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+.hr-item:focus-visible {
+  outline: none;
+  z-index: 6;
+}
+.hr-item:focus-visible::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 4px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--hr-accent);
+}
+.hr-swing {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--hr-art-w);
+  height: calc(var(--hr-art-w) * 2);
+  margin-left: calc(var(--hr-art-w) / -2);
+  transform-origin: 56% 2%;
+  animation: hr-sway 3.2s ease-in-out infinite alternate;
+  animation-delay: var(--sway-delay, 0s);
+  pointer-events: none;
+}
+@keyframes hr-sway {
+  from {
+    transform: rotate(-1.6deg);
+  }
+  to {
+    transform: rotate(1.6deg);
+  }
+}
+
+.hr-art {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(0.42);
+  transform-origin: 56% 0;
+  filter: brightness(0.9) drop-shadow(0 6px 8px rgba(0, 0, 0, 0.12));
+  transition:
+    transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 0.35s ease;
+}
+.hr-art--photo {
+  transform: none;
+  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.12));
+}
+.hr-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: top center;
+  transition: opacity 0.35s ease;
+}
+.hr-img--front {
+  opacity: 0;
+}
+
+.hr-tag {
+  position: absolute;
+  top: 46px;
+  left: calc(50% + 4px);
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #fff;
+  border: 1px solid #d5d8dd;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  color: var(--hr-text);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+  transform: rotate(-6deg);
+  pointer-events: none;
+  z-index: 2;
+}
+
+
+@media (hover: hover) {
+  .hr-item:hover {
+    z-index: 6;
+  }
+  .hr-item:hover .hr-swing {
+    animation-play-state: paused;
+  }
+  .hr-item:hover .hr-art {
+    transform: scaleX(1) scale(1.07);
+    filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.18));
+  }
+  .hr-item:hover .hr-art--photo {
+    transform: scale(1.07);
+  }
+  .hr-item:hover .hr-img--front {
+    opacity: 1;
+  }
+  .hr-item:hover .hr-img--side {
+    opacity: 0;
+  }
+}
+.hr-item:focus-visible .hr-art,
+.hr-item.is-center .hr-art {
+  transform: scaleX(1) scale(1.04);
+  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.18));
+}
+.hr-item:focus-visible .hr-art--photo,
+.hr-item.is-center .hr-art--photo {
+  transform: scale(1.04);
+}
+.hr-item:focus-visible .hr-img--front,
+.hr-item.is-center .hr-img--front {
+  opacity: 1;
+}
+.hr-item:focus-visible .hr-img--side,
+.hr-item.is-center .hr-img--side {
+  opacity: 0;
+}
+.hr-item.is-center {
+  z-index: 5;
+}
+
+
+.hr-foot {
+  max-width: 1280px;
+  margin: 8px auto 0;
+  padding: 0 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.hr-info {
+  min-height: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.hr-info-name {
+  font-size: 17px;
+  font-weight: 700;
+}
+.hr-info-price {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 16px;
+  font-weight: 700;
+}
+.hr-info-price s {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--hr-muted);
+}
+.hr-info-hint {
+  font-size: 15px;
+  color: var(--hr-muted);
+}
+.hr-arrows {
+  display: flex;
+  gap: 8px;
+}
+.hr-arrows button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid #c9ced6;
+  background: #fff;
+  color: var(--hr-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.hr-arrows button:hover {
+  border-color: var(--hr-primary);
+  color: var(--hr-primary);
+}
+
+
