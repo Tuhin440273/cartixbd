@@ -278,6 +278,58 @@ class ProductController extends Controller
         return response()->json(['data' => $this->detail($product->refresh())], 201);
     }
 
+    /**
+     * Adds a color to a product by creating one variant per existing size, copying that size's prices
+     * and weight. New variants start with no stock, so nothing can be sold until stock is added.
+     */
+    public function storeColor(Request $request, Product $product): JsonResponse
+    {
+        $data = $request->validate([
+            'color_value_id' => ['required', 'integer', $this->attributeValueRule('color')],
+        ], ['color_value_id.exists' => 'Choose one of the shop colors.']);
+        $colorId = (int) $data['color_value_id'];
+
+        $created = DB::transaction(function () use ($product, $colorId, $request) {
+            Product::query()->whereKey($product->id)->lockForUpdate()->first();
+            $variants = $product->variants()->with('attributeValues.attribute')->orderByDesc('is_default')->orderBy('id')->get();
+            if ($variants->isEmpty()) {
+                throw new DomainRuleException('Add at least one variant before adding colors.');
+            }
+            $code = fn (ProductVariant $v, string $c) => $v->attributeValues->first(fn ($a) => $a->attribute?->code === $c)?->id;
+            if ($variants->contains(fn (ProductVariant $v) => (int) $code($v, 'color') === $colorId)) {
+                throw new DomainRuleException('This product already has this color.');
+            }
+
+            // One template per size (the default variant wins), in the order the sizes first appear.
+            $templates = [];
+            foreach ($variants->sortBy('id') as $v) {
+                $key = (string) ($code($v, 'size') ?? 'none');
+                $templates[$key] ??= $variants->first(fn (ProductVariant $x) => (string) ($code($x, 'size') ?? 'none') === $key);
+            }
+
+            $created = [];
+            foreach ($templates as $template) {
+                $valueIds = array_values(array_filter([$code($template, 'size'), $colorId]));
+                $created[] = $this->createVariant($product, [
+                    'sku' => $this->readableSku($product->name, $valueIds),
+                    'price' => $template->price,
+                    'compare_at_price' => $template->compare_at_price,
+                    'cost_price' => $template->cost_price,
+                    'weight_grams' => $template->weight_grams,
+                    'is_default' => false,
+                ], $valueIds, 0, $request->user()->id);
+            }
+
+            return $created;
+        });
+        $this->activity->log('product.color_added', $product, [
+            'color_value_id' => $colorId,
+            'skus' => array_map(fn (ProductVariant $v) => $v->sku, $created),
+        ]);
+
+        return response()->json(['data' => $this->detail($product->refresh())], 201);
+    }
+
     public function updateVariant(Request $request, ProductVariant $variant): JsonResponse
     {
         $data = $request->validate([
@@ -456,6 +508,24 @@ class ProductController extends Controller
         }
 
         return $variant;
+    }
+
+    /**
+     * A SKU like FLEECE-HOODIE-BROWN-M, matching the style of the seeded catalog.
+     * Falls back to a random suffix when that SKU is already taken.
+     *
+     * @param  list<int>  $valueIds  size id first (if any), then color id
+     */
+    private function readableSku(string $name, array $valueIds): string
+    {
+        $values = DB::table('attribute_values')->whereIn('id', $valueIds)->pluck('value', 'id');
+        $parts = [Str::limit(Str::slug($name), 40, ''), ...array_map(fn ($id) => Str::slug((string) ($values[$id] ?? '')), array_reverse($valueIds))];
+        $sku = strtoupper(implode('-', array_filter($parts)));
+        if ($sku === '' || strlen($sku) > 100 || ProductVariant::withTrashed()->where('sku', $sku)->exists()) {
+            return $this->generateSku($name);
+        }
+
+        return $sku;
     }
 
     private function generateSku(string $name): string

@@ -70,7 +70,8 @@ h1, h2, h3 { margin: 0; line-height: 1.2; text-wrap: balance; }
   padding: 20px 14px; display: flex; flex-direction: column; gap: 18px;
 }
 .side-brand { padding: 0 10px; display: flex; flex-direction: column; }
-.side-brand strong { color: #fff; font-size: 26px; }
+.side-brand { gap: 4px; }
+.side-brand img { display: block; height: 40px; width: auto; max-width: 100%; }
 .side-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .menu-toggle { display: none; background: transparent; border: 1px solid rgba(255, 255, 255, 0.35); color: #fff; border-radius: 8px; padding: 8px 14px; min-height: 44px; cursor: pointer; }
 .side-nav { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
@@ -182,7 +183,8 @@ td a:hover { text-decoration: underline; }
 
 .login-wrap { min-height: 100%; display: flex; align-items: center; justify-content: center; padding: 24px 16px; background: var(--primary); }
 .login-card { width: min(420px, 100%); background: var(--surface); border-radius: 18px; padding: 28px; display: flex; flex-direction: column; gap: 16px; }
-.login-card h1 { font-size: 28px; }
+.login-card h1 { font-size: 24px; }
+.login-logo img { display: block; height: 52px; width: auto; }
 
 .skeleton { background: linear-gradient(90deg, var(--surface-2), var(--line), var(--surface-2)); background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius: 8px; min-height: 18px; }
 @keyframes shimmer { to { background-position: -200% 0; } }
@@ -192,6 +194,7 @@ td a:hover { text-decoration: underline; }
 
 @media (max-width: 760px) {
   .side { flex-basis: 100%; padding: 12px; gap: 10px; }
+  .side-brand img { height: 32px; }
   .menu-toggle { display: inline-flex; align-items: center; }
   .side .side-nav, .side .side-user { display: none; }
   .side.open .side-nav, .side.open .side-user { display: flex; }

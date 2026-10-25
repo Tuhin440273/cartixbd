@@ -68,6 +68,7 @@ Route::prefix('admin')->group(function () {
             Route::patch('products/{product}/status', [ProductController::class, 'updateStatus']);
             Route::delete('products/{product}', [ProductController::class, 'destroy']);
             Route::post('products/{product}/variants', [ProductController::class, 'storeVariant']);
+            Route::post('products/{product}/colors', [ProductController::class, 'storeColor']);
             Route::put('variants/{variant}', [ProductController::class, 'updateVariant']);
             Route::post('products/{product}/images', [ProductController::class, 'storeImage']);
             Route::put('products/{product}/images/order', [ProductController::class, 'reorderImages']);

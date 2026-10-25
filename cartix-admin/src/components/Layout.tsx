@@ -38,7 +38,7 @@ export function Layout() {
       <aside className={`side${menuOpen ? ' open' : ''}`}>
         <div className="side-top">
           <div className="side-brand">
-            <strong>Cartix</strong>
+            <img src="/logo/cartix-logo-horizontal-white.png" alt="Cartix" width={142} height={40} />
             <span>Admin panel</span>
           </div>
           <button type="button" className="menu-toggle" aria-expanded={menuOpen} aria-controls="main-menu"

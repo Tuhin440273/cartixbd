@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import type { CategoryNode } from '@/lib/types';
 import { CloseIcon, MenuIcon } from '@/components/ui/icons';
+import { Logo } from './Logo';
 
 export function MobileNav({ categories }: { categories: CategoryNode[] }) {
   const pathname = usePathname();
@@ -41,7 +42,7 @@ export function MobileNav({ categories }: { categories: CategoryNode[] }) {
           <button type="button" className="absolute inset-0 bg-ink/40" aria-label="Close menu" onClick={() => setOpen(false)} />
           <div className="absolute inset-y-0 left-0 flex w-[85%] max-w-sm flex-col overflow-y-auto bg-card p-4 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
-              <span className="text-lg font-bold">Menu</span>
+              <Logo size="sm" />
               <button type="button" className="inline-flex h-10 w-10 items-center justify-center rounded-lg hover:bg-page" aria-label="Close menu" onClick={() => setOpen(false)} autoFocus>
                 <CloseIcon className="h-6 w-6" />
               </button>

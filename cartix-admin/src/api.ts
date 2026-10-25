@@ -201,6 +201,8 @@ export interface Meta {
   brands: { id: number; name: string }[];
   sizes: { id: number; value: string }[];
   colors: { id: number; value: string; color_hex: string | null }[];
+  /** Missing on older APIs; without it the admin cannot create colors from the photo picker. */
+  color_attribute_id?: number | null;
   order_statuses: Record<string, string>;
   vendor_order_statuses: Record<string, string>;
   product_statuses: Record<string, string>;

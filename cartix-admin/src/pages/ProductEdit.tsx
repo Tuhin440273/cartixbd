@@ -62,7 +62,7 @@ export function ProductEdit() {
 
       <DetailsForm product={product} meta={meta} disabled={!manage} onSaved={(p) => { setProduct(p); setError(null); showToast('Product details saved.'); }} />
       <VariantsSection product={product} meta={meta} manage={manage} onChange={(p, msg) => { setProduct(p); showToast(msg); }} />
-      <ProductPhotos product={product} meta={meta} manage={manage} onChange={(p, msg) => { setProduct(p); showToast(msg); }} />
+      <ProductPhotos product={product} meta={meta} manage={manage} onMetaChange={setMeta} onChange={(p, msg) => { setProduct(p); showToast(msg); }} />
 
       {manage && (
         <section className="card" aria-labelledby="danger-title">

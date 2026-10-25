@@ -17,6 +17,7 @@ use App\Services\Checkout\CheckoutService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
 use Tests\Feature\Concerns\BuildsStore;
 use Tests\TestCase;
@@ -133,6 +134,44 @@ class AdminCatalogTest extends TestCase
         $this->assertSame(2, Inventory::query()->where('variant_id', $variant->id)->value('low_stock_threshold'));
         // The product's cached price range follows its variants.
         $this->assertSame('1150.00', $product->fresh()->max_price);
+    }
+
+    public function test_a_color_can_be_added_to_a_product_for_every_size_with_zero_stock(): void
+    {
+        $first = $this->makeVariant('1100.00', stock: 5);
+        $product = $first->product;
+        $black = $this->colorId('Black');
+        $first->update(['compare_at_price' => '1400', 'cost_price' => '600']);
+        $first->attributeValues()->sync([$this->sizeId('S'), $black]);
+        $this->postJson("/api/admin/products/{$product->id}/variants", [
+            'size_value_id' => $this->sizeId('M'), 'color_value_id' => $black, 'price' => '1200', 'initial_stock' => 3,
+        ])->assertCreated();
+
+        $navy = $this->colorId('Navy');
+        $response = $this->postJson("/api/admin/products/{$product->id}/colors", ['color_value_id' => $navy])
+            ->assertCreated()->assertJsonCount(4, 'data.variants');
+        $added = collect($response->json('data.variants'))->where('color_value_id', $navy)->sortBy('price')->values();
+        $this->assertCount(2, $added);
+        $this->assertSame([$this->sizeId('S'), $this->sizeId('M')], $added->pluck('size_value_id')->all());
+        $this->assertSame(['1100.00', '1200.00'], $added->pluck('price')->all());
+        $this->assertSame('1400.00', $added[0]['compare_at_price']);
+        $this->assertSame('600.00', $added[0]['cost_price']);
+        $this->assertSame([0, 0], $added->pluck('quantity')->all());
+        $this->assertSame([false, false], $added->pluck('is_default')->all());
+        $slug = strtoupper(Str::slug($product->name));
+        $this->assertSame(["{$slug}-NAVY-S", "{$slug}-NAVY-M"], $added->pluck('sku')->all());
+        $this->assertTrue(ActivityLog::query()->where('action', 'product.color_added')->exists());
+
+        $this->postJson("/api/admin/products/{$product->id}/colors", ['color_value_id' => $navy])
+            ->assertStatus(422)->assertJsonPath('message', 'This product already has this color.');
+        $this->postJson("/api/admin/products/{$product->id}/colors", ['color_value_id' => $this->sizeId('S')])
+            ->assertStatus(422)->assertJsonPath('errors.color_value_id.0', 'Choose one of the shop colors.');
+    }
+
+    public function test_meta_includes_the_color_attribute_for_creating_new_colors(): void
+    {
+        $id = Attribute::query()->where('code', 'color')->value('id');
+        $this->getJson('/api/admin/meta')->assertOk()->assertJsonPath('color_attribute_id', $id);
     }
 
     public function test_product_images_upload_reorder_and_delete(): void

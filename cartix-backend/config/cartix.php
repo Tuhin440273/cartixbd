@@ -8,6 +8,12 @@ return [
     'payment_methods' => array_values(array_filter(array_map('trim', explode(',', (string) env('CARTIX_PAYMENT_METHODS', 'cod'))))),
 
     /* Days a guest cart is kept after its last change. */
+    // Logo for emails and other server-made pages (public/logo). Emails need a full URL, so set
+    // APP_URL to the public address of the API in production.
+    'brand' => [
+        'email_logo_url' => rtrim((string) env('APP_URL', 'http://localhost'), '/').'/logo/cartix-logo-email.png',
+    ],
+
     'cart_lifetime_days' => (int) env('CARTIX_CART_LIFETIME_DAYS', 30),
 
     /*

@@ -31,7 +31,11 @@ export function Login() {
   return (
     <div className="login-wrap">
       <form className="login-card" onSubmit={submit}>
-        <h1>Cartix Admin</h1>
+        <picture className="login-logo">
+          <source srcSet="/logo/cartix-logo-horizontal-white.png" media="(prefers-color-scheme: dark)" />
+          <img src="/logo/cartix-logo-horizontal.png" alt="Cartix" width={185} height={52} />
+        </picture>
+        <h1>Admin sign in</h1>
         <p className="muted" style={{ margin: 0 }}>Sign in with your phone number and password.</p>
         {error && <div className="alert" role="alert">{error}</div>}
         <div className="field">

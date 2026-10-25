@@ -24,6 +24,8 @@ class MetaController extends Controller
             'brands' => Brand::query()->where('is_active', true)->orderBy('name')->get(['id', 'name']),
             'sizes' => $attributes['size']?->values->map->only(['id', 'value']) ?? [],
             'colors' => $attributes['color']?->values->map->only(['id', 'value', 'color_hex']) ?? [],
+            // Lets forms create a new color value (POST /attributes/{id}/values).
+            'color_attribute_id' => $attributes['color']?->id,
             'order_statuses' => OrderStatus::options(),
             'vendor_order_statuses' => VendorOrderStatus::options(),
             'product_statuses' => ProductStatus::options(),
