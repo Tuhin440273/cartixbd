@@ -1,0 +1,13 @@
+{
+  "folders": [
+    { "name": "Backend (Laravel)", "path": "cartix-backend" },
+    { "name": "Storefront (Next.js)", "path": "cartix-storefront" },
+    { "name": "Admin (React)", "path": "cartix-admin" }
+  ],
+  "settings": {
+    "files.exclude": { "**/node_modules": true, "**/vendor": true, "**/.next": true },
+    "search.exclude": { "**/node_modules": true, "**/vendor": true, "**/.next": true, "**/dist": true },
+    "files.watcherExclude": { "**/node_modules/**": true, "**/vendor/**": true, "**/.next/**": true },
+    "editor.formatOnSave": false
+  }
+}
