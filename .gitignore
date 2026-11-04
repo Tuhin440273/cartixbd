@@ -8,3 +8,7 @@ dist/
 cartix-backend/storage/app/public/*
 cartix-backend/public/storage
 */e2e/artifacts/
+
+.env
+.env.*
+!.env.example
