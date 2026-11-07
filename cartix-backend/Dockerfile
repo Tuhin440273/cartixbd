@@ -13,3 +13,4 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction \
     && chmod -R 775 storage bootstrap/cache
 
 CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
+CMD php artisan storage:link || true; php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
